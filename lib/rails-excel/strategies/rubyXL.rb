@@ -1,12 +1,17 @@
 require 'rubyXL'
 module RailsExcel
   module Strategies
-    class RubyXL
+    module RubyXL
+      extend self
 
       def compile(io, &block)
-        workbook = RubyXL::Workbook.new
+        temp_path = Rails.root.join("tmp/workbook_#{Time.now.to_i}.xlsx").to_s
+        workbook = ::RubyXL::Workbook.new
         yield(workbook)
-        workbook.write(io)
+        workbook.write(temp_path)
+        content = File.read(temp_path)
+        FileUtils.rm(temp_path)
+        io.write content
       end
 
     end
